@@ -1,0 +1,17 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+autopep8 = "*"
+flake8 = "*"
+
+[packages]
+requests = "*"
+pandas = "*"
+markovify = "*"
+mecab-python3 = "==0.996.5"
+
+[requires]
+python_version = "3.8"

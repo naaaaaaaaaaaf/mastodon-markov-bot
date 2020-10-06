@@ -1,0 +1,15 @@
+version: "3"
+services:
+  main_bot:
+    build:
+      context: .
+    volumes:
+      - "./src:/scripts"
+    environment:
+      TZ: "Asia/Tokyo"
+      FLASK_ENV: "development"
+    tty: true
+    command: >
+      /bin/bash -c "
+      cd /scripts &&
+      pipenv install --system --dev && /bin/bash"
