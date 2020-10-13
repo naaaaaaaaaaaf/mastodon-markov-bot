@@ -12,4 +12,4 @@ services:
     command: >
       /bin/bash -c "
       cd /scripts &&
-      pipenv install --system --dev && /bin/bash"
+      pipenv install --system --dev && python3 app.py"
