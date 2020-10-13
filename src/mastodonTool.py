@@ -52,7 +52,7 @@ def fetchTootsLoop(domain, access_token, account_id, params, loop):
         for x in req:
             last_id = x['id']
             # print(x['content'])
-            if x['']:
+            if x['visibility'] == 'private' or x['visibility'] == 'direct':
                 print("we find private toot! skip")
                 continue
             seikei = re.compile(r"<[^>]*?>").sub("", x['content'])
