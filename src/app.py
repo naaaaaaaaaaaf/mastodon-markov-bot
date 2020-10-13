@@ -13,8 +13,12 @@ config_ini = configparser.ConfigParser()
 config_ini.read('config.ini', encoding='utf-8')
 
 
-def worker(domain, read_access_token, write_access_token):
+def worker():
     # 学習
+    domain = config_ini['read']['domain']
+    read_access_token = config_ini['read']['access_token']
+    write_access_token = config_ini['write']['access_token']
+
     account_info = mastodonTool.get_account_info(domain, read_access_token)
     params = {"exclude_replies": 1, "exclude_reblogs": 1}
     filename = "{}@{}".format(account_info["username"], domain)
@@ -28,7 +32,7 @@ def worker(domain, read_access_token, write_access_token):
     with open("./chainfiles/{}@{}.json".format(account_info["username"], domain)) as f:
         textModel = markovify.Text.from_json(f.read())
         sentence = textModel.make_sentence(tries=100)
-        sentence = "".join(sentence.split())
+        sentence = "".join(sentence.split()) + ' #bot'
 
     mastodonTool.post_toot(domain, write_access_token, {"status": sentence})
 
@@ -47,4 +51,5 @@ def schedule(interval, f, wait=True):
 
 if __name__ == "__main__":
     # 定期実行部分
-    schedule(5, worker)
+    schedule(1800, worker)
+    # worker()
