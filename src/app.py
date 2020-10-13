@@ -29,7 +29,7 @@ def worker():
         exportModel.generateAndExport(mastodonTool.loadMastodonAPI(domain, read_access_token, account_info['id'], params), filepath)
         print("LOG,GENMODEL," + str(datetime.datetime.now()) + "," + account_info["username"].lower())   # Log
     # 生成
-    with open("./chainfiles/{}@{}.json".format(account_info["username"], domain)) as f:
+    with open("./chainfiles/{}@{}.json".format(account_info["username"].lower(), domain)) as f:
         textModel = markovify.Text.from_json(f.read())
         sentence = textModel.make_sentence(tries=100)
         sentence = "".join(sentence.split()) + ' #bot'
