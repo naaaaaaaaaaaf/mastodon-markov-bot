@@ -3,16 +3,33 @@ import configparser
 import time
 import threading
 import mastodonTool
+import os
+import datetime
+import markovify
 
 # 環境変数の読み込み
 config_ini = configparser.ConfigParser()
 config_ini.read('config.ini', encoding='utf-8')
 
 
-def worker():
-    # 学習 or トゥート生成
-    print(time.time())
-    time.sleep(8)
+def worker(domain, read_access_token, write_access_token):
+    # 学習
+    account_info = mastodonTool.get_account_info(domain, read_access_token)
+    params = {"exclude_replies": 1, "exclude_reblogs": 1}
+    filename = "{}@{}".format(account_info["username"], domain)
+    filepath = os.path.join("./chainfiles", os.path.basename(filename.lower()) + ".json")
+    if (os.path.isfile(filepath) and datetime.datetime.now().timestamp() - os.path.getmtime(filepath) < 60 * 60 * 24):
+        Msg = "モデルは24時間に1回生成が可能です。"
+    else:
+        exportModel.generateAndExport(mastodonTool.loadMastodonAPI(domain, read_access_token, account_info['id'], params), filepath)
+        print("LOG,GENMODEL," + str(datetime.datetime.now()) + "," + account_info["username"].lower())   # Log
+    # 生成
+    with open("./chainfiles/{}@{}.json".format(account_info["username"], domain)) as f:
+        textModel = markovify.Text.from_json(f.read())
+        sentence = textModel.make_sentence(tries=100)
+        sentence = "".join(sentence.split())
+
+    mastodonTool.post_toot(domain, write_access_token, {"status": sentence})
 
 
 def schedule(interval, f, wait=True):

@@ -1,7 +1,21 @@
 #!/usr/bin/env python3
+from os import access
 import re
 import requests
 import json
+
+
+def get_account_info(domain, access_token):
+    headers = {'Authorization': 'Bearer {}'.format(access_token)}
+    res = requests.get('https://' + domain + '/api/v1/accounts/verify_credentials', headers=headers).json()
+    return res
+
+
+def post_toot(domain, access_token, params):
+    headers = {'Authorization': 'Bearer {}'.format(access_token)}
+    url = "https://{}/api/v1/statuses".format(domain)
+    req = requests.post(url, headers=headers, json=params).json()
+    return req
 
 
 def filterToots(twts):
