@@ -6,6 +6,7 @@ import mastodonTool
 import os
 import datetime
 import markovify
+import exportModel
 
 # 環境変数の読み込み
 config_ini = configparser.ConfigParser()
