@@ -7,6 +7,7 @@ import os
 import datetime
 import markovify
 import exportModel
+import re
 
 # 環境変数の読み込み
 config_ini = configparser.ConfigParser()
@@ -33,6 +34,7 @@ def worker():
         textModel = markovify.Text.from_json(f.read())
         sentence = textModel.make_sentence(tries=300)
         sentence = "".join(sentence.split()) + ' #bot'
+        sentence = re.sub(r'(:.*?:)', r' \1 ', sentence)
         print(sentence)
     try:
         mastodonTool.post_toot(domain, write_access_token, {"status": sentence})
