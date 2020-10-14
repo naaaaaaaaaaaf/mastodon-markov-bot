@@ -14,8 +14,10 @@ def get_account_info(domain, access_token):
 def post_toot(domain, access_token, params):
     headers = {'Authorization': 'Bearer {}'.format(access_token)}
     url = "https://{}/api/v1/statuses".format(domain)
-    req = requests.post(url, headers=headers, json=params).json()
-    return req
+    response = requests.post(url, headers=headers, json=params)
+    if response.status_code != 200:
+        raise Exception('リクエストに失敗しました。')
+    return response
 
 
 def filterToots(twts):
@@ -41,26 +43,35 @@ def loadTootsJS(filepath):
 def fetchToots(domain, access_token, account_id, params):
     headers = {'Authorization': 'Bearer {}'.format(access_token)}
     url = "https://{}/api/v1/accounts/{}/statuses".format(domain, account_id)
-    req = requests.get(url, headers=headers, json=params).json()
-    return req
+    response = requests.get(url, headers=headers, json=params)
+    if response.status_code != 200:
+        raise Exception('リクエストに失敗しました。')
+    return response
 
 
 def fetchTootsLoop(domain, access_token, account_id, params, loop):
     toots = []
     for i in range(loop):
-        req = fetchToots(domain, access_token, account_id, params)
-        for x in req:
-            last_id = x['id']
-            # print(x['content'])
-            if x['visibility'] == 'private' or x['visibility'] == 'direct':
-                print("we find private toot! skip")
-                continue
-            seikei = re.compile(r"<[^>]*?>").sub("", x['content'])
-            toots.append(seikei)
-        params["max_id"] = last_id
+        try:
+            req = fetchToots(domain, access_token, account_id, params)
+            #print(req.status_code)
+            req = req.json()
+            for x in req:
+                last_id = x['id']
+                print(x['content'])
+                if x['visibility'] == 'private' or x['visibility'] == 'direct':
+                    print("鍵投稿のためスキップしました。 {}".format(x['content']))
+                    continue
+                seikei = re.compile(r"<[^>]*?>").sub("", x['content'])
+                toots.append(seikei)
+                params["max_id"] = last_id
+        except Exception as e:
+            break
+    #重複投稿を削除
+    toots = list(set(toots))
     return toots
 
 
 def loadMastodonAPI(domain, access_token, account_id, params):
-    toots = fetchTootsLoop(domain, access_token, account_id, params, 100)
+    toots = fetchTootsLoop(domain, access_token, account_id, params, 200)
     return "\n".join(filterToots(toots))
