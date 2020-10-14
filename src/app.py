@@ -37,10 +37,10 @@ def worker():
     try:
         mastodonTool.post_toot(domain, write_access_token, {"status": sentence})
     except Exception as e:
-        print("投稿エラー")
+        print("投稿エラー: {}".format(e))
 
 
-def schedule(interval, f, wait=True):
+def schedule(f, interval=1200, wait=True):
     base_time = time.time()
     next_time = 0
     while True:
@@ -54,5 +54,5 @@ def schedule(interval, f, wait=True):
 
 if __name__ == "__main__":
     # 定期実行部分
-    schedule(1800, worker)
+    schedule(worker)
     # worker()

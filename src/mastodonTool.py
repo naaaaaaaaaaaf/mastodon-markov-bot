@@ -31,15 +31,6 @@ def filterToots(twts):
     return data
 
 
-def loadTootsJS(filepath):
-    with open(filepath) as f:
-        text = f.read()
-    text = text[25:]
-    data = json.loads(text)
-    text = [s["tweet"]["full_text"] for s in data]
-    return "\n".join(filterToots(text))
-
-
 def fetchToots(domain, access_token, account_id, params):
     headers = {'Authorization': 'Bearer {}'.format(access_token)}
     url = "https://{}/api/v1/accounts/{}/statuses".format(domain, account_id)
@@ -54,7 +45,7 @@ def fetchTootsLoop(domain, access_token, account_id, params, loop):
     for i in range(loop):
         try:
             req = fetchToots(domain, access_token, account_id, params)
-            #print(req.status_code)
+            # print(req.status_code)
             req = req.json()
             for x in req:
                 last_id = x['id']
@@ -66,8 +57,9 @@ def fetchTootsLoop(domain, access_token, account_id, params, loop):
                 toots.append(seikei)
                 params["max_id"] = last_id
         except Exception as e:
+            print("読み込みエラー: {}".format(e))
             break
-    #重複投稿を削除
+    # 重複投稿を削除
     toots = list(set(toots))
     return toots
 
