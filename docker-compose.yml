@@ -3,6 +3,7 @@ services:
   main_bot:
     build:
       context: .
+    restart: always
     volumes:
       - "./src:/scripts"
     environment:
