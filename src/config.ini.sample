@@ -1,5 +1,10 @@
 [read]
+# 学習元アカウントの情報をここに入力
+# domainにはインスタンスのドメイン(https://抜き)・access_tokenにはアクセストークンを入力
 domain = 
 access_token = 
 [write]
+# 投稿用アカウントの情報をここに入力
+# access_tokenにはアクセストークンを入力
+# 学習用アカウントと同じアカウントを利用したい場合は同じアクセストークンを入力(非推奨)
 access_token = 
