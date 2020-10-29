@@ -6,7 +6,7 @@ Mastodon上のアカウントの投稿を、マルコフ連鎖して投稿する
 利用する際は各サーバーのBotガイドラインに従ってください。
 
 
-例: https://ap.ketsuben.red/@mecha_naf/105073696514947785/embed
+例: https://ap.ketsuben.red/@mecha_naf/105073696514947785
 
 ## 必要なもの
 Dockerが入ったマシン(入れ方は各自調べてください)
