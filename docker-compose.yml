@@ -13,4 +13,4 @@ services:
     command: >
       /bin/bash -c "
       cd /scripts &&
-      pipenv install --system --dev && python3 app.py"
+      python3 app.py"
