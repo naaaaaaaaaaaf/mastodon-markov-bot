@@ -7,4 +7,7 @@ access_token =
 # 投稿用アカウントの情報をここに入力
 # access_tokenにはアクセストークンを入力
 # 学習用アカウントと同じアカウントを利用したい場合は同じアクセストークンを入力(非推奨)
+# visibilityには公開範囲を入力
+# public, unlisted, private
 access_token = 
+visibility = public

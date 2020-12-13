@@ -19,6 +19,7 @@ def worker():
     domain = config_ini['read']['domain']
     read_access_token = config_ini['read']['access_token']
     write_access_token = config_ini['write']['access_token']
+    toot_visibility = config_ini['write']['visibility']
 
     account_info = mastodonTool.get_account_info(domain, read_access_token)
     params = {"exclude_replies": 1, "exclude_reblogs": 1}
@@ -37,7 +38,7 @@ def worker():
         sentence = re.sub(r'(:.*?:)', r' \1 ', sentence)
         print(sentence)
     try:
-        mastodonTool.post_toot(domain, write_access_token, {"status": sentence})
+        mastodonTool.post_toot(domain, write_access_token, {"status": sentence, "visibility": toot_visibility})
     except Exception as e:
         print("投稿エラー: {}".format(e))
 
