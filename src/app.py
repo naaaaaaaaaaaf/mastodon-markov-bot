@@ -8,10 +8,11 @@ import datetime
 import markovify
 import exportModel
 import re
+import s3
 
-# 環境変数の読み込み
+
 config_ini = configparser.ConfigParser()
-config_ini.read('config.ini', encoding='utf-8')
+is_lambda = os.getenv("AWS_LAMBDA_FUNCTION_NAME") is not None
 
 
 def worker():
@@ -22,15 +23,24 @@ def worker():
 
     account_info = mastodonTool.get_account_info(domain, read_access_token)
     params = {"exclude_replies": 1, "exclude_reblogs": 1}
-    filename = "{}@{}".format(account_info["username"], domain)
-    filepath = os.path.join("./chainfiles", os.path.basename(filename.lower()) + ".json")
+    base_dir = "/tmp" if is_lambda else "./chainfiles"
+    filename = "{}@{}.json".format(account_info["username"], domain).lower()
+    filepath = os.path.join(base_dir, os.path.basename(filename.lower()))
+
+    if is_lambda:
+        s3.get_file(filename, filepath)
+
     if (os.path.isfile(filepath) and datetime.datetime.now().timestamp() - os.path.getmtime(filepath) < 60 * 60 * 24):
         print("モデルは再生成されません")
     else:
         exportModel.generateAndExport(mastodonTool.loadMastodonAPI(domain, read_access_token, account_info['id'], params), filepath)
         print("LOG,GENMODEL," + str(datetime.datetime.now()) + "," + account_info["username"].lower())   # Log
+
+        if is_lambda:
+            s3.put_file(filename, filepath)
+
     # 生成
-    with open("./chainfiles/{}@{}.json".format(account_info["username"].lower(), domain)) as f:
+    with open(filepath) as f:
         textModel = markovify.Text.from_json(f.read())
         sentence = textModel.make_sentence(tries=300)
         sentence = "".join(sentence.split()) + ' #bot'
@@ -54,7 +64,16 @@ def schedule(f, interval=1200, wait=True):
         time.sleep(next_time)
 
 
+def handler(event, context):
+    config_ini.read('config.ini.sample', encoding='utf-8')
+    config_ini['read']['domain'] = os.environ['DOMAIN']
+    config_ini['read']['access_token'] = os.environ['READ_ACCESS_TOKEN']
+    config_ini['write']['access_token'] = os.environ['WRITE_ACCESS_TOKEN']
+    worker()
+
+
 if __name__ == "__main__":
     # 定期実行部分
+    config_ini.read('config.ini', encoding='utf-8')
     schedule(worker)
     # worker()
