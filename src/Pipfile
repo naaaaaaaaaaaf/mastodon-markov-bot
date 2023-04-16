@@ -11,7 +11,8 @@ flake8 = "*"
 requests = "*"
 pandas = "*"
 markovify = "*"
-mecab-python3 = "==0.996.5"
+mecab-python3 = "==1.0.6"
+boto3 = "*"
 
 [requires]
 python_version = "3.8"
