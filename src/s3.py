@@ -9,12 +9,14 @@ s3 = boto3.resource('s3')
 
 def get_file(key, file_path):
     try:
-        s3.Bucket(os.environ["S3_BUCKET"]).download_file(key, file_path)
+        bucketName = os.environ["S3_BUCKET"]
+        object_summery = s3.ObjectSummary(bucketName, key)
+        s3.Bucket(bucketName).download_file(key, file_path)
         print("File downloaded: {} to {}".format(key, file_path))
+        return True, object_summery.last_modified.timestamp()
     except ClientError:
         print("File not found: {}".format(key))
-        return False
-    return True
+    return False, None
 
 
 def put_file(key, file_path):
