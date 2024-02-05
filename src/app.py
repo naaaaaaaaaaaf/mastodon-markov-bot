@@ -27,10 +27,13 @@ def worker():
     filename = "{}@{}.json".format(account_info["username"], domain).lower()
     filepath = os.path.join(base_dir, os.path.basename(filename.lower()))
 
+    now = datetime.datetime.now().timestamp()
     if is_lambda:
-        s3.get_file(filename, filepath)
+        _, last_modified = s3.get_file(filename, filepath)
+    else:
+        last_modified = os.path.getmtime(filepath) if os.path.isfile(filepath) else None
 
-    if (os.path.isfile(filepath) and datetime.datetime.now().timestamp() - os.path.getmtime(filepath) < 60 * 60 * 24):
+    if (os.path.isfile(filepath) and last_modified is not None and now - last_modified < 60 * 60 * 24):
         print("モデルは再生成されません")
     else:
         exportModel.generateAndExport(mastodonTool.loadMastodonAPI(domain, read_access_token, account_info['id'], params), filepath)
